@@ -21,6 +21,30 @@ from validators import ValidationError, validate_complete_operation
 from import_ui import render_escale_import, render_consignation_import
 
 
+def _autres_postes(db_manager: DBManager, operateur: str,
+                   postes_operateur: list) -> list:
+    """Postes existants en base attribués à d'autres opérateurs (cas exceptionnels)."""
+    if not operateur or operateur.startswith("Sélectionner"):
+        return []
+    try:
+        df = db_manager.get_postes()
+    except Exception:
+        return []
+    if df is None or df.empty:
+        return []
+    propres = {str(p).strip().upper() for p in (postes_operateur or [])}
+    autres = []
+    for _, r in df.iterrows():
+        nom = str(r.get("nom_poste", "")).strip()
+        if not nom or nom.upper() in propres:
+            continue
+        op = str(r.get("operateur", "")).strip().upper()
+        if op and op == str(operateur).strip().upper():
+            continue
+        autres.append(nom)
+    return sorted(set(autres))
+
+
 def show_saisie(db_manager: DBManager):
     """
     Affiche la page de saisie des données portuaires
@@ -548,6 +572,19 @@ def show_saisie(db_manager: DBManager):
             .incident-row { grid-template-columns: 1fr; gap: 0.3rem; padding: 0.8rem; }
             .incident-row.header { display: none; }
         }
+
+        .autre-poste-zone {
+            margin-top: 0.35rem;
+            padding: 0.45rem 0.7rem 0.35rem;
+            border: 1px dashed var(--s-border-2);
+            border-radius: 12px;
+            background: rgba(11, 92, 255, 0.03);
+        }
+        .autre-poste-hint {
+            margin-top: 0.15rem;
+            font-size: 0.72rem;
+            color: #5b7aa6;
+        }
     </style>
     """, unsafe_allow_html=True)
 
@@ -650,6 +687,29 @@ def show_saisie(db_manager: DBManager):
         "A": ["Valeur vide / Divers"]
     }
 
+    # Catalogue Type M <-> Marchandises persisté en base (ajouts personnalisés)
+    try:
+        type_m_catalog_df = db_manager.get_type_m_catalog()
+        if type_m_catalog_df is not None and not type_m_catalog_df.empty:
+            for _, cat_row in type_m_catalog_df.iterrows():
+                cat_tm = cat_row.get("type_m")
+                cat_mar = cat_row.get("marchandise")
+                if cat_tm is None or cat_mar is None:
+                    continue
+                if isinstance(cat_tm, float) and cat_tm != cat_tm:
+                    continue
+                if isinstance(cat_mar, float) and cat_mar != cat_mar:
+                    continue
+                cat_tm = str(cat_tm).strip()
+                cat_mar = str(cat_mar).strip()
+                if not cat_tm or not cat_mar:
+                    continue
+                TYPE_M_MAPPING.setdefault(cat_tm, [])
+                if cat_mar not in TYPE_M_MAPPING[cat_tm]:
+                    TYPE_M_MAPPING[cat_tm].append(cat_mar)
+    except Exception:
+        pass
+
     # Liste des Type M (avec ajout personnalisé)
     TYPE_M_BASE = list(TYPE_M_MAPPING.keys())
     TYPE_M_LIST = sorted(list(set(TYPE_M_BASE + st.session_state.custom_types_m)))
@@ -695,7 +755,29 @@ def show_saisie(db_manager: DBManager):
         "Autre"
     ]
 
-    LIEUX_INCIDENTS = LIEUX_BASE + st.session_state.custom_lieux
+    # Lieux incidents persistés en base (ajouts personnalisés)
+    lieux_db = []
+    try:
+        lieux_catalog_df = db_manager.get_lieux_incidents()
+        if lieux_catalog_df is not None and not lieux_catalog_df.empty:
+            for _, lieu_row in lieux_catalog_df.iterrows():
+                nom_lieu = lieu_row.get("nom_lieu")
+                if nom_lieu is None:
+                    continue
+                if isinstance(nom_lieu, float) and nom_lieu != nom_lieu:
+                    continue
+                nom_lieu = str(nom_lieu).strip()
+                if nom_lieu:
+                    lieux_db.append(nom_lieu)
+    except Exception:
+        lieux_db = []
+
+    _lieux_vus = {str(l).strip().upper() for l in LIEUX_BASE}
+    LIEUX_INCIDENTS = list(LIEUX_BASE)
+    for _lieu in (lieux_db + st.session_state.custom_lieux):
+        if str(_lieu).strip().upper() not in _lieux_vus:
+            LIEUX_INCIDENTS.append(_lieu)
+            _lieux_vus.add(str(_lieu).strip().upper())
 
     # ============================================================
     # MODE DE CONDITIONNEMENT - NOUVELLE LISTE
@@ -791,17 +873,43 @@ def show_saisie(db_manager: DBManager):
                     numero_navire = st.text_input("Escale", placeholder="Ex: IMO 1234567")
                     
                     if postes_options:
-                        poste = st.selectbox(
+                        poste_choisi = st.selectbox(
                             "Poste",
                             postes_options,
                             key="poste_select"
                         )
                     else:
-                        poste = st.selectbox(
+                        poste_choisi = st.selectbox(
                             "Poste",
                             ["Sélectionner d'abord l'opérateur"],
                             key="poste_select"
                         )
+
+                    st.markdown('<div class="autre-poste-zone">', unsafe_allow_html=True)
+                    poste_autre_active = st.checkbox(
+                        "Autre poste",
+                        key="autre_poste_active",
+                        help="Cas exceptionnel : choisir un poste habituellement réservé à un autre opérateur."
+                    )
+                    autre_poste = None
+                    if poste_autre_active:
+                        autres = _autres_postes(db_manager, operateur, postes_options)
+                        if autres:
+                            autre_poste = st.selectbox(
+                                "Autre poste",
+                                autres,
+                                key="autre_poste_select",
+                                placeholder="Choisir un poste…"
+                            )
+                        else:
+                            st.caption("Aucun autre poste disponible dans la base.")
+                    st.markdown(
+                        '<div class="autre-poste-hint">💡 Ne sélectionne que des postes '
+                        'déjà existants en base, sans en créer de nouveaux.</div>',
+                        unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+                    poste = autre_poste if (poste_autre_active and autre_poste) else poste_choisi
                     
                     consignataire = st.selectbox("Consignataire", CONSIGNATAIRES)
 
@@ -1070,14 +1178,22 @@ def show_saisie(db_manager: DBManager):
                                     if new_type_m and new_type_m.strip():
                                         type_upper = new_type_m.strip().upper()
                                         if type_upper not in TYPE_M_LIST:
-                                            st.session_state.custom_types_m.append(type_upper)
-                                            if new_type_m_marchandise.strip():
+                                            if new_type_m_marchandise and new_type_m_marchandise.strip():
                                                 marchandises_associees = [m.strip() for m in new_type_m_marchandise.split(",") if m.strip()]
-                                                TYPE_M_MAPPING[type_upper] = marchandises_associees
                                             else:
-                                                TYPE_M_MAPPING[type_upper] = ["Marchandise à définir"]
-                                            st.success(f"✅ Le Type M '{type_upper}' a été ajouté !")
-                                            st.rerun()
+                                                marchandises_associees = ["Marchandise à définir"]
+                                            db_manager.initialize_database()
+                                            enregistre = True
+                                            for _m in marchandises_associees:
+                                                if not db_manager.add_type_m_marchandise(type_upper, _m):
+                                                    enregistre = False
+                                            if enregistre:
+                                                st.session_state.custom_types_m.append(type_upper)
+                                                TYPE_M_MAPPING[type_upper] = marchandises_associees
+                                                st.success(f"✅ Le Type M '{type_upper}' a été ajouté !")
+                                                st.rerun()
+                                            else:
+                                                st.error("❌ Échec de l'enregistrement en base du Type M.")
                                         else:
                                             st.warning(f"⚠️ Le Type M '{type_upper}' existe déjà.")
                                     else:
@@ -1091,28 +1207,59 @@ def show_saisie(db_manager: DBManager):
                         
                         # Détermination des marchandises correspondantes
                         if type_m_selected != "Sélectionner un Type M" and type_m_selected in TYPE_M_MAPPING:
-                            marchandises_correspondantes = TYPE_M_MAPPING[type_m_selected]
-                            marchandises_options = ["Sélectionner"] + marchandises_correspondantes
+                            marchandises_correspondantes = [m for m in TYPE_M_MAPPING[type_m_selected] if m != "Marchandise à définir"]
+                            marchandises_options = ["Sélectionner"] + marchandises_correspondantes + ["➕ Ajouter une marchandise"]
                         else:
                             marchandises_options = ["Sélectionner un Type M d'abord"]
-                        
+
+                        # Présélection d'une marchandise fraîchement ajoutée
+                        if f"marchandise_ajout_{i}" in st.session_state:
+                            st.session_state[f"marchandise_select_{i}"] = st.session_state.pop(f"marchandise_ajout_{i}")
+
                         # Marchandise (liste déroulante dépendante du Type M)
-                        if len(marchandises_options) > 1:
-                            type_marchandise_i = st.selectbox(
-                                f"Marchandise #{i + 1}",
-                                marchandises_options,
-                                key=f"marchandise_select_{i}"
-                            )
-                            if type_marchandise_i == "Sélectionner":
-                                type_marchandise_i = ""
-                        else:
-                            type_marchandise_i = st.selectbox(
-                                f"Marchandise #{i + 1}",
-                                marchandises_options,
-                                key=f"marchandise_select_{i}"
-                            )
-                            if type_marchandise_i == "Sélectionner un Type M d'abord":
-                                type_marchandise_i = ""
+                        type_marchandise_i = st.selectbox(
+                            f"Marchandise #{i + 1}",
+                            marchandises_options,
+                            key=f"marchandise_select_{i}"
+                        )
+
+                        # Option "➕ Ajouter une marchandise"
+                        if type_marchandise_i == "➕ Ajouter une marchandise":
+                            if type_m_selected != "Sélectionner un Type M" and type_m_selected in TYPE_M_MAPPING:
+                                st.markdown('<div style="background: #F0F6FF; padding: 0.8rem; border-radius: 12px; border: 1px solid #B9D8FF; margin: 0.3rem 0;">', unsafe_allow_html=True)
+                                st.markdown('<span style="font-weight:800;color:#06264A;">✏️ Nouvelle marchandise</span>', unsafe_allow_html=True)
+
+                                nouvelle_marchandise = st.text_input(
+                                    "Nom de la nouvelle marchandise",
+                                    placeholder=f"Ex: nouvelle marchandise pour {type_m_selected}",
+                                    key=f"new_marchandise_input_{i}"
+                                )
+
+                                col_mok, col_mcancel = st.columns(2)
+                                with col_mok:
+                                    if st.button("✅ Ajouter", key=f"confirm_add_marchandise_{i}"):
+                                        if nouvelle_marchandise and nouvelle_marchandise.strip():
+                                            march_upper = nouvelle_marchandise.strip()
+                                            exists = any(m.upper() == march_upper.upper() for m in TYPE_M_MAPPING[type_m_selected])
+                                            if not exists:
+                                                db_manager.initialize_database()
+                                                if db_manager.add_type_m_marchandise(type_m_selected, march_upper):
+                                                    TYPE_M_MAPPING[type_m_selected] = TYPE_M_MAPPING[type_m_selected] + [march_upper]
+                                                    st.session_state[f"marchandise_ajout_{i}"] = march_upper
+                                                    st.success(f"✅ La marchandise '{march_upper}' a été ajoutée au Type M '{type_m_selected}' !")
+                                                    st.rerun()
+                                                else:
+                                                    st.error("❌ Échec de l'enregistrement en base de la marchandise.")
+                                            else:
+                                                st.warning(f"⚠️ La marchandise '{march_upper}' existe déjà pour ce Type M.")
+                                        else:
+                                            st.warning("⚠️ Veuillez entrer le nom de la marchandise.")
+                                with col_mcancel:
+                                    if st.button("❌ Annuler", key=f"cancel_add_marchandise_{i}"):
+                                        st.rerun()
+                                st.markdown('</div>', unsafe_allow_html=True)
+                        if type_marchandise_i in ("Sélectionner", "➕ Ajouter une marchandise", "Sélectionner un Type M d'abord"):
+                            type_marchandise_i = ""
 
                         mode_conditionnement_i = st.selectbox(
                             f"Mode de conditionnement #{i + 1}",
@@ -1488,12 +1635,16 @@ def show_saisie(db_manager: DBManager):
                     if st.button("➕ Enregistrer ce lieu", key="save_lieu_btn"):
                         if lieu_autre and lieu_autre.strip():
                             nouveau_lieu = lieu_autre.strip()
-                            if nouveau_lieu not in LIEUX_INCIDENTS:
-                                st.session_state.custom_lieux.append(nouveau_lieu)
-                                st.success(f"✅ Le lieu '{nouveau_lieu}' a été ajouté à la liste !")
-                                st.rerun()
-                            else:
+                            if any(l.upper() == nouveau_lieu.upper() for l in LIEUX_INCIDENTS):
                                 st.warning(f"⚠️ Le lieu '{nouveau_lieu}' existe déjà dans la liste.")
+                            else:
+                                db_manager.initialize_database()
+                                if db_manager.add_lieu_incident(nouveau_lieu):
+                                    st.session_state.custom_lieux.append(nouveau_lieu)
+                                    st.success(f"✅ Le lieu '{nouveau_lieu}' a été ajouté à la liste !")
+                                    st.rerun()
+                                else:
+                                    st.error("❌ Échec de l'enregistrement en base du lieu.")
                         else:
                             st.warning("⚠️ Veuillez saisir un lieu avant d'enregistrer.")
                 

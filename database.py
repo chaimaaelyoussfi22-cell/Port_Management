@@ -333,7 +333,32 @@ class DBManager:
             """)
 
             # ========================================
-            # 8. TABLE escales
+            # 8. TABLE type_m_catalog (Catalogue Type M / Marchandises)
+            # ========================================
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS type_m_catalog (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    type_m VARCHAR(20) NOT NULL,
+                    marchandise VARCHAR(200) NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY uk_type_m_marchandise (type_m, marchandise)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """)
+
+            # ========================================
+            # 9. TABLE lieux_incidents (Catalogue des lieux d'incidents)
+            # ========================================
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS lieux_incidents (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nom_lieu VARCHAR(100) NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY uk_lieu (nom_lieu)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """)
+
+            # ========================================
+            # 10. TABLE escales
             # ========================================
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS escales (
@@ -355,7 +380,7 @@ class DBManager:
             """)
 
             # ========================================
-            # 9. TABLE consignations
+            # 11. TABLE consignations
             # ========================================
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS consignations (
@@ -375,7 +400,7 @@ class DBManager:
             """)
 
             # ========================================
-            # 10. DONNÉES PAR DÉFAUT
+            # 12. DONNÉES PAR DÉFAUT
             # ========================================
 
             import hashlib
@@ -928,6 +953,102 @@ class DBManager:
         except Exception as e:
             logger.error(f"Erreur get_postes: {e}")
             return pd.DataFrame()
+        finally:
+            conn.close()
+
+    def get_type_m_catalog(self) -> pd.DataFrame:
+        """Retourne le catalogue Type M <-> Marchandises (ajouts personnalisés)."""
+        conn = self._connect()
+        if conn is None:
+            return pd.DataFrame()
+
+        try:
+            return pd.read_sql_query(
+                """SELECT id, type_m, marchandise
+                   FROM type_m_catalog
+                   ORDER BY type_m ASC, marchandise ASC""",
+                conn,
+            )
+        except Exception as e:
+            logger.error(f"Erreur get_type_m_catalog: {e}")
+            return pd.DataFrame()
+        finally:
+            conn.close()
+
+    def add_type_m_marchandise(self, type_m: str, marchandise: str) -> bool:
+        """Enregistre un couple Type M / Marchandise dans le catalogue (sans doublon)."""
+        if not type_m or not marchandise:
+            return False
+
+        conn = self._connect()
+        if conn is None:
+            return False
+
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO type_m_catalog (type_m, marchandise)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE id = id
+                """,
+                (type_m.strip().upper(), marchandise.strip()),
+            )
+            conn.commit()
+            cursor.close()
+            return True
+        except Exception as e:
+            logger.error(f"Erreur add_type_m_marchandise: {e}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+
+    def get_lieux_incidents(self) -> pd.DataFrame:
+        """Retourne le catalogue des lieux d'incidents (ajouts personnalisés)."""
+        conn = self._connect()
+        if conn is None:
+            return pd.DataFrame()
+
+        try:
+            return pd.read_sql_query(
+                """SELECT id, nom_lieu
+                   FROM lieux_incidents
+                   ORDER BY nom_lieu ASC""",
+                conn,
+            )
+        except Exception as e:
+            logger.error(f"Erreur get_lieux_incidents: {e}")
+            return pd.DataFrame()
+        finally:
+            conn.close()
+
+    def add_lieu_incident(self, nom_lieu: str) -> bool:
+        """Enregistre un lieu d'incident dans le catalogue (sans doublon)."""
+        if not nom_lieu or not nom_lieu.strip():
+            return False
+
+        conn = self._connect()
+        if conn is None:
+            return False
+
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO lieux_incidents (nom_lieu)
+                VALUES (%s)
+                ON DUPLICATE KEY UPDATE id = id
+                """,
+                (nom_lieu.strip(),),
+            )
+            conn.commit()
+            cursor.close()
+            return True
+        except Exception as e:
+            logger.error(f"Erreur add_lieu_incident: {e}")
+            conn.rollback()
+            return False
         finally:
             conn.close()
 
