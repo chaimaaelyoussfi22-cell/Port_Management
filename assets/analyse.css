@@ -1,0 +1,513 @@
+/* ==================================================================
+   PAGES /analyse — THÈME MARITIME CLAIR (Power BI portuaire)
+   Fond océan bleu ciel, cartes « glace marine » compactes, graphiques
+   cadrés, décorations discrètes (ancre, voilier, poissons, coquillage,
+   vagues, bulles). Aucune logique/modification de données.
+   ================================================================== */
+
+:root {
+    --ink: #0c3156; --ink-2: #2f6a96; --muted: #5d88ab;
+    --card: rgba(255, 255, 255, .88); --card-2: rgba(226, 244, 255, .9);
+    --line: #bcdcf3; --line-2: #cfe6f8;
+    --sea: #1ca9c9; --sea-deep: #1273a8; --teal: #0e8fae;
+    --shadow: 0 10px 26px rgba(28, 84, 132, .13);
+}
+
+/* ---------- FOND OCÉAN UNIFORME + BULLES + LUEUR ---------- */
+.stApp {
+    background:
+        radial-gradient(circle at 14% 20%, rgba(255,255,255,.55) 1.5px, transparent 2.5px),
+        radial-gradient(circle at 33% 13%, rgba(255,255,255,.5) 2px, transparent 3px),
+        radial-gradient(circle at 58% 27%, rgba(45,156,219,.16) 2.5px, transparent 3.5px),
+        radial-gradient(circle at 73% 18%, rgba(255,255,255,.5) 1px, transparent 2px),
+        radial-gradient(circle at 11% 42%, rgba(45,156,219,.13) 3px, transparent 4px),
+        radial-gradient(circle at 87% 53%, rgba(255,255,255,.42) 1.5px, transparent 2.5px),
+        radial-gradient(circle at 52% 68%, rgba(45,156,219,.10) 2px, transparent 3px),
+        linear-gradient(0deg, rgba(36,121,186,.15), rgba(36,121,186,0) 45%),
+        radial-gradient(circle at 85% -10%, rgba(255,255,255,.55), transparent 36%),
+        linear-gradient(175deg, #8ed0f7 0%, #b5e3fb 34%, #d9f1fd 66%, #f2fbff 100%) !important;
+    color: var(--ink) !important;
+}
+.stApp [data-testid="stMarkdownContainer"] { color: var(--ink); }
+.stApp label, .stApp [data-baseweb="select"] span,
+.stApp [data-baseweb="input"] input {
+    color: var(--ink-2) !important;
+}
+.block-container { position: relative; z-index: 3 !important; max-width: 1800px; }
+
+/* ---------- DÉCORATION MARITIME DISCRÈTE (arrière-plan) ---------- */
+.stApp::before {
+    content: "⚓"; position: fixed; left: 20px; bottom: 18px; z-index: 0;
+    font-size: 38px; line-height: 1; opacity: .16; pointer-events: none;
+    filter: grayscale(.25); animation: anBob 7s ease-in-out infinite;
+}
+.stApp::after {
+    content: ""; position: fixed; left: -10%; right: -10%; bottom: -16px; height: 58px;
+    background: rgba(38,124,190,.10); border-radius: 50% 50% 0 0;
+    filter: blur(5px); z-index: 0; pointer-events: none;
+}
+.stApp .block-container::before {
+    content: "⛵"; position: fixed; right: 28px; top: 138px; z-index: 0;
+    font-size: 30px; line-height: 1; opacity: .18; pointer-events: none;
+    filter: grayscale(.35); animation: anBoat 9s ease-in-out infinite;
+}
+.stApp .block-container::after {
+    content: "🐚"; position: fixed; right: 22px; bottom: 24px; z-index: 0;
+    font-size: 38px; line-height: 1; opacity: .14; pointer-events: none;
+    transform: rotate(-14deg); filter: grayscale(.3);
+}
+.stApp [data-testid="stMain"]::before {
+    content: "🐟"; position: fixed; left: 0; top: 32%; z-index: 0;
+    font-size: 24px; line-height: 1; opacity: 0; pointer-events: none;
+    animation: anSeaSwimA 36s linear infinite;
+}
+.stApp [data-testid="stMain"]::after {
+    content: "🐟"; position: fixed; left: 0; top: 56%; z-index: 0;
+    font-size: 19px; line-height: 1; opacity: 0; pointer-events: none;
+    animation: anSeaSwimB 26s linear infinite;
+}
+@keyframes anSeaSwimA {
+    0%   { transform: translateX(-80px) scaleX(-1); opacity: 0; }
+    6%   { opacity: .15; }
+    92%  { opacity: .15; }
+    100% { transform: translateX(115vw) scaleX(-1); opacity: 0; }
+}
+@keyframes anSeaSwimB {
+    0%   { transform: translateX(115vw); opacity: 0; }
+    8%   { opacity: .12; }
+    90%  { opacity: .12; }
+    100% { transform: translateX(-80px); opacity: 0; }
+}
+@keyframes anBoat { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(3deg); } }
+@keyframes anBob  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* ==================================================================
+   HEADER / BANNIÈRE
+   ================================================================== */
+.an-header {
+    background: linear-gradient(115deg, rgba(255,255,255,.93), rgba(219,240,253,.9));
+    border: 1px solid var(--line); border-radius: 18px;
+    padding: 18px 22px; margin-bottom: 14px;
+    box-shadow: var(--shadow);
+}
+.an-title h1 {
+    font-size: 1.3rem; letter-spacing: .07em; margin: 0;
+    color: var(--ink); font-weight: 800;
+}
+.an-title p { margin: 3px 0 0; color: var(--muted); font-size: .78rem; }
+.an-header-meta { display: flex; gap: 22px; margin-left: auto; flex-wrap: wrap; }
+.an-header-meta .meta { text-align: right; }
+.an-header-meta .meta span {
+    display: block; font-size: .6rem; letter-spacing: .15em; color: var(--muted);
+}
+.an-header-meta .meta b { color: var(--ink); font-size: .95rem; }
+@media (max-width: 700px) { .an-header-meta { margin-left: 0; } }
+
+/* ==================================================================
+   CONTAINERS / FILTRES
+   ================================================================== */
+.an-filters {
+    background: rgba(255,255,255,.72); border: 1px solid var(--line);
+    border-radius: 15px; padding: 14px 16px 6px; margin-bottom: 15px;
+    box-shadow: 0 8px 20px rgba(28,84,132,.08);
+}
+.an-filter-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 4px;
+}
+.an-filter-head b { color: var(--ink); font-size: .78rem; letter-spacing: .12em; }
+
+/* ---------- CHIPS DRILL / CONTEXTE ---------- */
+.an-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: -2px 0 8px; }
+.an-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(28,169,201,.10); border: 1px solid rgba(28,169,201,.35);
+    color: var(--sea-deep); border-radius: 999px; padding: 3px 12px; font-size: .76rem;
+    font-weight: 600;
+}
+
+/* ==================================================================
+   BANDEAU KPI
+   ================================================================== */
+.an-kpi-row {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 9px; margin-bottom: 10px;
+}
+@media (max-width: 1100px) { .an-kpi-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 700px)  { .an-kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+.an-kpi {
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg, rgba(255,255,255,.95), rgba(226,243,253,.9));
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 8px 11px 7px;
+    box-shadow: 0 8px 20px rgba(28,84,132,.10);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.an-kpi:hover {
+    transform: translateY(-2px);
+    border-color: rgba(28,169,201,.7);
+    box-shadow: 0 12px 26px rgba(28,84,132,.18);
+}
+.an-kpi small {
+    display: block; font-size: .53rem; letter-spacing: .13em; color: var(--muted);
+    text-transform: uppercase; font-weight: 700;
+}
+.an-kpi strong { display: block; font-size: 1.16rem; color: var(--ink); line-height: 1.12; margin: 2px 0 1px; }
+.an-kpi .unit { font-size: .78rem; color: var(--ink-2); }
+.an-kpi em.var-chip { font-style: normal; font-size: .61rem; font-weight: 700; }
+.an-kpi .kpi-help { display: none !important; }
+
+/* Puces de variation en thème clair */
+.var-chip { display: inline-block; margin-top: 4px; border-radius: 20px; padding: 2px 8px; font-style: normal; }
+.var-chip small { font-weight: 600; color: var(--muted); }
+.var-chip.good    { background: rgba(46,204,146,.14); color: #087d55; border: 1px solid rgba(46,204,146,.5); }
+.var-chip.bad     { background: rgba(255,96,119,.13); color: #c2253f; border: 1px solid rgba(255,96,119,.5); }
+.var-chip.neutral { background: rgba(28,122,192,.10); color: var(--ink-2); border: 1px solid rgba(28,122,192,.35); }
+.mk-prev { display: block; font-size: .6rem; color: var(--muted); margin-top: 3px; }
+.micro-chart .chart-grid { stroke: rgba(28,122,192,.20) !important; }
+.chart-empty { border-color: rgba(40,140,190,.35) !important; color: var(--muted) !important; }
+
+/* ==================================================================
+   CARTES (cards d'analyse) — verre marin clair
+   ================================================================== */
+.an-cards-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;
+}
+@media (max-width: 900px) { .an-cards-grid { grid-template-columns: 1fr; } }
+.an-cards-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 1100px) { .an-cards-grid.cols-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px)  { .an-cards-grid.cols-3 { grid-template-columns: 1fr; } }
+
+.an-card {
+    background: linear-gradient(160deg, rgba(255,255,255,.96), rgba(226,243,253,.92));
+    border: 1px solid rgba(28,140,205,.55); border-radius: 15px;
+    padding: 11px 13px 8px; overflow: hidden;
+    box-shadow: 0 10px 24px rgba(28,84,132,.15);
+    transition: border-color .2s, box-shadow .2s;
+}
+.an-card:hover { border-color: rgba(28,169,201,.75); box-shadow: 0 13px 28px rgba(28,84,132,.20); }
+.an-card + .an-card { margin-top: 10px; }
+
+.an-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.an-card-head h4 {
+    margin: 0; color: var(--ink); font-size: .86rem; font-weight: 800; letter-spacing: .02em;
+}
+.an-card-head .an-card-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(28,169,201,.12); border: 1px solid rgba(28,169,201,.35);
+    color: var(--sea-deep); border-radius: 999px; padding: 2px 9px;
+    font-size: .6rem; font-weight: 700; white-space: nowrap;
+}
+.an-card-sub { display: block; color: var(--muted); font-size: .7rem; margin: 0 0 8px; }
+
+.an-card-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.an-card-filters > div { min-width: 0; flex: 0 0 auto; }
+.an-card-chart { min-height: 200px; }
+.an-card.wide { grid-column: 1 / -1; }
+
+/* ==================================================================
+   TITRES DE SECTIONS (pages dédiées)
+   ================================================================== */
+.an-section { margin-top: 12px; margin-bottom: 7px; }
+.an-section-title {
+    display: flex; align-items: baseline; gap: 10px;
+    border-left: 3px solid var(--sea); padding-left: 12px; margin-bottom: 7px;
+}
+.an-section-title h3 { margin: 0; color: var(--ink); font-size: .94rem; letter-spacing: .03em; }
+.an-section-title span { color: var(--muted); font-size: .73rem; }
+
+/* ==================================================================
+   STATS MINI
+   ================================================================== */
+.an-mini-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 10px; }
+@media (max-width: 900px) { .an-mini-stats { grid-template-columns: repeat(2, 1fr); } }
+.an-mini {
+    background: rgba(255,255,255,.8); border: 1px solid var(--line-2); border-radius: 11px;
+    padding: 8px 12px; text-align: center; box-shadow: 0 5px 14px rgba(28,84,132,.07);
+}
+.an-mini span { display: block; font-size: .58rem; letter-spacing: .12em; color: var(--muted); font-weight: 700; }
+.an-mini b { color: var(--ink); font-size: 1rem; }
+
+/* ==================================================================
+   ANOMALIES / INSIGHTS
+   ================================================================== */
+.an-anomaly {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: rgba(255,255,255,.82); border: 1px solid var(--line-2);
+    border-left-width: 4px; border-radius: 11px; padding: 9px 13px; margin-bottom: 8px;
+    box-shadow: 0 5px 14px rgba(28,84,132,.07);
+}
+.an-anomaly .grav { font-size: 1rem; line-height: 1.2; }
+.an-anomaly .body b { color: var(--ink); font-size: .9rem; }
+.an-anomaly .body p { margin: 2px 0 0; color: var(--ink-2); font-size: .78rem; }
+.an-anomaly.sev-critique { border-left-color: #d1324f; }
+.an-anomaly.sev-majeure  { border-left-color: #e07a2e; }
+.an-anomaly.sev-mineure  { border-left-color: #b59a1a; }
+
+.insight-card {
+    background: linear-gradient(150deg, rgba(28,169,201,.09), rgba(255,255,255,.85));
+    border: 1px solid rgba(28,169,201,.35); border-radius: 12px;
+    padding: 11px 15px; margin-bottom: 8px; color: var(--ink); font-size: .86rem;
+    line-height: 1.45; box-shadow: 0 5px 14px rgba(28,84,132,.07);
+}
+.insight-card b.icn { color: var(--sea-deep); margin-right: 6px; }
+
+/* ---------- STATUTS ---------- */
+.status-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 999px; padding: 2px 10px; font-size: .75rem; font-weight: 600;
+}
+
+/* ==================================================================
+   TABLEAUX
+   ================================================================== */
+div[data-testid="stDataFrame"] {
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 6px 16px rgba(28,84,132,.09);
+}
+
+/* ==================================================================
+   GRAPHIQUES — cadre dédié (hors carte parente)
+   ================================================================== */
+div[data-testid="stPlotlyChart"] {
+    border: 1px solid var(--line-2); border-radius: 12px; overflow: hidden;
+    background: rgba(255,255,255,.65); box-shadow: 0 6px 16px rgba(28,84,132,.08);
+}
+.an-card div[data-testid="stPlotlyChart"],
+.an-header div[data-testid="stPlotlyChart"] {
+    border: none; background: none; box-shadow: none; border-radius: 10px;
+}
+
+/* ==================================================================
+   CONTENEURS STREAMLIT (bordure = card)
+   ================================================================== */
+div[data-testid="stVerticalBlockBorderWrapper"],
+.stVerticalBlockBorderWrapper {
+    border: 1px solid rgba(28,140,205,.55) !important;
+    background: rgba(255,255,255,.82) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 12px 26px rgba(28,84,132,.15) !important;
+    overflow: hidden;
+}
+
+/* ==================================================================
+   WIDGETS — THÈME CLAIR
+   ================================================================== */
+.stSelectbox > div > div {
+    background: #ffffff !important; border-color: var(--line) !important; color: var(--ink) !important;
+}
+.stMultiSelect > div > div {
+    background: #fff !important; border-color: var(--line) !important; color: var(--ink) !important;
+}
+.stMultiSelect [data-baseweb="tag"] { background: rgba(28,169,201,.14) !important; color: var(--sea-deep) !important; }
+.stMultiSelect [data-baseweb="tag"] span { color: var(--sea-deep) !important; }
+.stMultiSelect [data-baseweb="input"] { color: var(--ink) !important; }
+.stSegmentedControl [data-baseweb="segmented-control"] { background: rgba(255,255,255,.85) !important; }
+.stSegmentedControl button { color: var(--ink-2) !important; border-color: var(--line) !important; }
+.stSegmentedControl button[aria-selected="true"] {
+    background: rgba(28,169,201,.16) !important; color: var(--sea-deep) !important; font-weight: 700;
+}
+.stDateInput input {
+    background: #fff !important; border-color: var(--line) !important; color: var(--ink) !important;
+}
+.stButton button {
+    background: linear-gradient(90deg, #1ca9c9, #1273a8) !important;
+    border-color: rgba(28,169,201,.6) !important; color: #fff !important; font-weight: 600;
+}
+.stButton button:hover { background: #0f8cb0 !important; box-shadow: 0 0 14px rgba(28,169,201,.35); }
+.stDownloadButton button {
+    background: linear-gradient(90deg, #1ca9c9, #1273a8) !important;
+    border-color: rgba(28,169,201,.6) !important; color: #fff !important; font-weight: 600;
+}
+.stDownloadButton button:hover { background: #0f8cb0 !important; }
+div[data-testid="stExpander"] { background: rgba(255,255,255,.78) !important; border-color: var(--line) !important; }
+div[data-testid="stExpander"] summary { color: var(--ink) !important; }
+.stWarning, .stInfo, .stSuccess, .stError {
+    background: rgba(255,255,255,.85) !important; border-color: var(--line) !important;
+    color: var(--ink) !important;
+}
+
+/* ---------- Filtres compacts dans les cards ---------- */
+.an-card .stSelectbox, .an-card .stMultiSelect { margin-bottom: 0 !important; }
+.an-card .stSelectbox label, .an-card .stMultiSelect label {
+    font-size: .6rem !important; letter-spacing: .06em !important;
+    color: var(--muted) !important; margin-bottom: 2px !important; padding-top: 0 !important;
+}
+.an-card .stSelectbox > div > div { min-height: 30px !important; font-size: .78rem !important; }
+.an-card .stMultiSelect > div > div { min-height: 30px !important; font-size: .78rem !important; }
+.an-card .stButton button { min-height: 29px !important; font-size: .72rem !important; padding: 2px 10px !important; }
+
+/* ==================================================================
+   MASQUER LES TEXTES NON UTILES
+   caption (aide/notes techniques), méthodologie, infobulles « ? »
+   ================================================================== */
+[data-testid="stCaptionContainer"],
+.stCaption, .an-methodo { display: none !important; }
+
+/* ==================================================================
+   RESPONSIVE
+   ================================================================== */
+@media (max-width: 900px) {
+    div[data-testid=stHorizontalBlock] { flex-direction: column !important; }
+    .an-mini { flex: 1 1 100% !important; }
+}
+
+/* ==================================================================
+   RAFFINEMENTS LISIBILITÉ & COMPACITÉ (thème maritime clair)
+   ================================================================== */
+.block-container { padding-top: .9rem !important; padding-bottom: .4rem !important; }
+
+/* --- Graphiques : textes lisibles sur fond clair --- */
+div[data-testid="stPlotlyChart"] .gtitle,
+div[data-testid="stPlotlyChart"] .xtick text,
+div[data-testid="stPlotlyChart"] .ytick text,
+div[data-testid="stPlotlyChart"] .legendtext,
+div[data-testid="stPlotlyChart"] .legend .legendtitletext,
+div[data-testid="stPlotlyChart"] .annotation-text text {
+    fill: #0B3A5B !important;
+}
+div[data-testid="stPlotlyChart"] .hovertext text { fill: #0B3A5B !important; }
+div[data-testid="stPlotlyChart"] .hovertext path {
+    fill: rgba(255,255,255,.96) !important;
+    stroke: rgba(28,140,205,.65) !important;
+}
+
+/* --- Bordures des graphes seules (hors Wrapper) --- */
+div[data-testid="stPlotlyChart"] {
+    border: 1px solid rgba(28,140,205,.35) !important;
+    border-radius: 10px !important;
+}
+
+/* --- Wrapper BorderContainer : cadre net, fond clair, ombre portée --- */
+div[data-testid="stVerticalBlockBorderWrapper"],
+.stVerticalBlockBorderWrapper {
+    border: 1px solid rgba(28,140,205,.6) !important;
+    background: rgba(255,255,255,.85) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 12px 26px rgba(28,84,132,.18) !important;
+    overflow: hidden;
+}
+/* un graphe déjà encadré par le Wrapper : pas besoin de bordure interne */
+div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stPlotlyChart"] {
+    border: none !important; border-radius: 0 !important;
+}
+
+/* --- Widgets & boutons compacts dans les cadres --- */
+div[data-testid="stVerticalBlockBorderWrapper"] .stSelectbox label,
+div[data-testid="stVerticalBlockBorderWrapper"] .stMultiSelect label,
+div[data-testid="stVerticalBlockBorderWrapper"] .stNumberInput label,
+div[data-testid="stVerticalBlockBorderWrapper"] .stDateInput label {
+    font-size: .58rem !important; letter-spacing: .06em !important;
+    color: var(--muted) !important; margin-bottom: 2px !important; padding-top: 0 !important;
+}
+div[data-testid="stVerticalBlockBorderWrapper"] .stSelectbox > div > div,
+div[data-testid="stVerticalBlockBorderWrapper"] .stMultiSelect > div > div,
+div[data-testid="stVerticalBlockBorderWrapper"] .stDateInput input {
+    min-height: 30px !important; font-size: .78rem !important;
+}
+div[data-testid="stVerticalBlockBorderWrapper"] .stButton button {
+    min-height: 30px !important; font-size: .72rem !important;
+    padding: 2px 10px !important;
+}
+
+/* --- Cartes natives "an-card" : cadre renforcé --- */
+.an-card {
+    border: 1px solid rgba(28,140,205,.6) !important;
+    box-shadow: 0 12px 26px rgba(28,84,132,.18) !important;
+}
+
+/* --- Espacement vertical global plus resserré --- */
+div[data-testid="stVerticalBlock"] > div {
+    row-gap: .55rem !important;
+}
+
+/* ==================================================================
+   TABLEAU ÉTAT D'OCCUPATION DES POSTES (analyse_occupation)
+   Poste | Taux d'occupation | Statut — thème maritime clair
+   ================================================================== */
+.occ-wrap {
+    max-height: 560px;
+    overflow-y: auto;
+    border: 1px solid #d7e5f2;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(28,84,132,.08);
+}
+.occ-wrap table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.occ-wrap thead th {
+    position: sticky; top: 0; z-index: 2;
+    background: #0b315a; color: #fff; text-align: left;
+    font-size: .66rem; letter-spacing: .1em; text-transform: uppercase;
+    font-weight: 800; padding: 8px 14px; white-space: nowrap;
+}
+.occ-wrap thead th.occ-th-taux { text-align: right; }
+.occ-wrap tbody td {
+    padding: 5px 14px; border-bottom: 1px solid #e5eef7;
+    vertical-align: middle; height: 34px;
+}
+.occ-wrap tbody tr:last-child td { border-bottom: 0; }
+.occ-wrap tbody tr:nth-child(even) td { background: #f6fafd; }
+.occ-wrap tbody tr:hover td { background: #ebf4fd; }
+tr[data-status="underused"]  { --occ: #56a8ff; }
+tr[data-status="optimal"]    { --occ: #32d2a4; }
+tr[data-status="busy"]       { --occ: #f2b84b; }
+tr[data-status="saturated"]  { --occ: #ff6077; }
+.occ-poste {
+    font-weight: 800; color: #0B3A5B; font-size: .82rem;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    letter-spacing: .02em; white-space: nowrap;
+}
+.occ-taux { text-align: right; width: 42%; }
+.occ-gauge {
+    display: inline-block; vertical-align: middle;
+    width: 110px; height: 6px; border-radius: 4px;
+    background: #e3edf7; margin-right: 10px; overflow: hidden;
+}
+.occ-gauge i { display: block; height: 100%; border-radius: 4px; background: var(--occ, #56a8ff); }
+.occ-taux b { font-weight: 800; font-size: .82rem; color: var(--occ, #0B3A5B); white-space: nowrap; }
+.occ-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-weight: 800; font-size: .68rem; letter-spacing: .04em;
+    padding: 4px 12px; border-radius: 20px; border: 1px solid;
+    white-space: nowrap;
+}
+.occ-badge[data-status="underused"] { color: #1a4f88; background: #e8f1fc; border-color: #56a8ff99; }
+.occ-badge[data-status="optimal"]   { color: #0e7a5f; background: #e2f8f0; border-color: #32d2a4aa; }
+.occ-badge[data-status="busy"]      { color: #9c6a12; background: #fef4df; border-color: #f2b84baa; }
+.occ-badge[data-status="saturated"] { color: #b3263a; background: #ffecef; border-color: #ff6077aa; }
+/* ==================================================================
+   PAGE RAPPORT — CENTRE DE RAPPORTS (prévisualisation & exports)
+   ================================================================== */
+.rp-hero { background: linear-gradient(135deg, #0B315A, #1273a8); color: #fff; border: 0; }
+.rp-hero-title { font-size: 1.35rem; font-weight: 900; letter-spacing: .02em; }
+.rp-hero-sub { font-size: .8rem; color: #cfe6f8; margin-top: 4px; }
+.an-head {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: .92rem; color: var(--ink);
+    margin: 18px 0 8px; padding-bottom: 6px;
+    border-bottom: 2px solid var(--sea);
+}
+.an-card-body { font-size: .92rem; line-height: 1.55; color: var(--ink); }
+.an-muted { color: var(--muted); font-size: .72rem; margin-top: 6px; }
+.an-badge {
+    font-size: .78rem; line-height: 1.45; padding: 7px 12px;
+    border-radius: 10px; margin: 4px 0; border: 1px solid;
+}
+.an-badge.ok { color: #0e7a5f; background: #e2f8f0; border-color: #32d2a466; }
+.an-badge.warn { color: #9c6a12; background: #fef4df; border-color: #f2b84b88; }
+.rp-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin: 6px 0 14px; }
+.rp-table thead th {
+    background: #0B315A; color: #fff; font-weight: 800; text-align: left;
+    padding: 7px 10px; border: 1px solid #9ec3e5;
+}
+.rp-table tbody td { padding: 7px 10px; border: 1px solid #cfe6f8; }
+.rp-table tbody tr:nth-child(even) td { background: #f6fafd; }
+.rp-table tbody tr:hover td { background: #ebf4fd; }
+.rp-good { color: #0b8f63; font-weight: 800; }
+.rp-bad  { color: #c3324b; font-weight: 800; }
+.rp-na   { color: var(--muted); }
+.rp-pgtag {
+    display: inline-block; background: #eef4fa; color: var(--ink-2);
+    border: 1px solid var(--line); border-radius: 14px; padding: 3px 10px;
+    font-size: .7rem; margin: 2px 2px; white-space: nowrap;
+}

@@ -1,0 +1,438 @@
+/* ============================================ */
+/* ANP PORT JORF LASFAR - GLOBAL STYLE CLEAN    */
+/* ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap');
+
+:root {
+    --anp-navy: #0a1a2f;
+    --anp-navy-light: #122a4a;
+    --anp-navy-dark: #051020;
+    --anp-blue: #1a4a6f;
+    --anp-blue-light: #2c6288;
+    --anp-gold: #c8a84e;
+    --anp-gold-light: #dbb95c;
+    --anp-gold-dark: #a8893a;
+    --anp-white: #ffffff;
+
+    --gray-50: #fafbfd;
+    --gray-100: #f0f2f5;
+    --gray-200: #e4e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+
+    --success: #10b981;
+    --danger: #ef4444;
+    --info: #3b82f6;
+
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.10);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.10);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.10);
+
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+}
+
+/* ===================== BASE ===================== */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--gray-800);
+    line-height: 1.5;
+}
+
+.stApp {
+    background: linear-gradient(135deg, var(--gray-50) 0%, #eef2ff 100%);
+}
+
+.block-container {
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+}
+
+[data-testid="stSidebarNav"] {
+    display: none !important;
+}
+
+/* ===================== SIDEBAR GLOBAL ===================== */
+/* Thème « Smart Port Command Center » — bleu marine BI (#071428 / #0c213d / #56a8ff) */
+[data-testid="stSidebar"] {
+    background:
+        radial-gradient(circle at 88% -8%, rgba(86,168,255,0.12), transparent 34%),
+        radial-gradient(circle at -10% 70%, rgba(45,212,191,0.06), transparent 30%),
+        linear-gradient(180deg, #071428 0%, #0a1d36 58%, #0a1d36 100%) !important;
+    overflow: hidden !important;
+    border-right: 1px solid rgba(117,176,235,0.18) !important;
+    box-shadow: 12px 0 40px rgba(4,12,26,0.5) !important;
+    animation: slideInRight 0.4s ease-out;
+}
+
+[data-testid="stSidebar"]::after {
+    content: "⚓";
+    position: absolute;
+    bottom: 18px;
+    right: 14px;
+    font-size: 78px;
+    opacity: 0.045;
+    color: #56a8ff;
+    pointer-events: none;
+}
+
+/* ---- En-tête d'identité : SMART PORT — Jorf Lasfar ---- */
+.sp-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 18px 12px;
+}
+.sp-brand-mark {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(86,168,255,0.28), rgba(86,168,255,0.10));
+    border: 1px solid rgba(86,168,255,0.55);
+    font-size: 22px;
+    box-shadow: 0 8px 20px rgba(4,12,26,0.35);
+}
+.sp-brand-copy { min-width: 0; }
+.sp-brand-title {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.02rem;
+    letter-spacing: 0.14em;
+    line-height: 1;
+}
+.sp-brand-sub {
+    color: #7fb6dd;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+.sp-brand-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 18px 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(117,176,235,0.15);
+    color: #5f86a8;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+.sp-brand-eyebrow::before,
+.sp-brand-eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+}
+.sp-brand-eyebrow::before { background: linear-gradient(90deg, transparent, rgba(86,168,255,0.40)); }
+.sp-brand-eyebrow::after  { background: linear-gradient(90deg, rgba(86,168,255,0.40), transparent); }
+
+/* ---- Titre de section navigation ---- */
+.sp-nav-heading {
+    color: #5f86a8;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    margin: 2px 20px 8px;
+}
+
+/* ---- Navigation (st.radio transformé en cartes nav) ---- */
+[data-testid="stSidebar"] [role="radiogroup"] {
+    gap: 6px !important;
+    padding: 0 10px;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label {
+    display: flex !important;
+    align-items: center !important;
+    background: rgba(86,168,255,0.04) !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    margin: 2px 4px !important;
+    color: #a9cae8 !important;
+    font-weight: 700 !important;
+    font-size: 0.86rem !important;
+    letter-spacing: 0.06em !important;
+    transition: all 0.22s ease !important;
+    cursor: pointer !important;
+    position: relative !important;
+    backdrop-filter: blur(6px);
+}
+/* Cercle radio natif masqué : chaque item devient une carte nav pleine largeur */
+[data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"] > div:first-of-type {
+    display: none !important;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"] > div:nth-of-type(2) {
+    flex: 1 !important;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label:hover {
+    background: rgba(86,168,255,0.10) !important;
+    transform: translateX(3px);
+    border-color: rgba(86,168,255,0.25) !important;
+    color: #eaf5ff !important;
+    box-shadow: 0 8px 22px rgba(4,12,26,0.30);
+}
+[data-testid="stSidebar"] [role="radiogroup"] label:focus-visible {
+    outline: 1px solid rgba(86,168,255,0.6) !important;
+    outline-offset: -1px;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label[aria-checked="true"] {
+    background: linear-gradient(90deg, rgba(86,168,255,0.18), rgba(86,168,255,0.06)) !important;
+    border-color: rgba(86,168,255,0.35) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(4,12,26,0.35) !important;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label[aria-checked="true"]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #56a8ff, #2dd4bf);
+    box-shadow: 0 0 12px rgba(86,168,255,0.8);
+}
+[data-testid="stSidebar"] [role="radiogroup"] label p,
+[data-testid="stSidebar"] [role="radiogroup"] label span,
+[data-testid="stSidebar"] [role="radiogroup"] label div {
+    color: #a9cae8 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label[aria-checked="true"] p,
+[data-testid="stSidebar"] [role="radiogroup"] label[aria-checked="true"] span,
+[data-testid="stSidebar"] [role="radiogroup"] label[aria-checked="true"] div {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    font-weight: 800 !important;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label[aria-checked="true"] > div:nth-of-type(2) {
+    letter-spacing: 0.02em;
+}
+[data-testid="stSidebar"] input[type="radio"] {
+    accent-color: #56a8ff !important;
+}
+
+.mysql-status-connected,
+.mysql-status-disconnected {
+    display: none !important;
+}
+
+.user-profile {
+    background: rgba(255,255,255,0.10) !important;
+    border: 1px solid rgba(200,168,78,0.25) !important;
+    border-radius: 22px !important;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    backdrop-filter: blur(14px);
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #c8a84e, #fff1a8) !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--anp-navy);
+    box-shadow: 0 0 25px rgba(200,168,78,0.45);
+}
+
+.user-name {
+    font-weight: 700;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.user-role {
+    font-size: 0.7rem;
+    color: var(--gray-300);
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+[data-testid="stSidebar"] .stButton > button {
+    background: rgba(86,168,255,0.06) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(117,176,235,0.20) !important;
+    color: #cfe8ff !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.04em !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(86,168,255,0.14) !important;
+    border-color: rgba(86,168,255,0.55) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 20px rgba(4,12,26,0.35) !important;
+}
+
+/* ===================== GENERIC METRICS ONLY ===================== */
+[data-testid="stMetric"] {
+    background: var(--anp-white);
+    border-radius: var(--radius-xl);
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+}
+
+[data-testid="stMetric"] label {
+    font-weight: 700;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+}
+
+[data-testid="stMetric"] [data-testid="stMetricValue"] {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--anp-navy);
+}
+
+/* ===================== GENERIC TABLES ONLY ===================== */
+[data-testid="stTable"] table {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+[data-testid="stTable"] th {
+    background: linear-gradient(135deg, var(--anp-navy), var(--anp-blue));
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+[data-testid="stTable"] td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 0.85rem;
+}
+
+[data-testid="stTable"] tr:hover {
+    background: var(--gray-50);
+}
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-200);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #56a8ff, #2dd4bf);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #2dd4bf, #56a8ff);
+}
+
+/* ===================== ANIMATIONS ===================== */
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes sidebarWave {
+    0% { transform: translateX(-30%); }
+    100% { transform: translateX(30%); }
+}
+
+/* ===================== FOOTER SIDEBAR ===================== */
+.sp-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin: 18px 18px 0;
+    padding: 12px 6px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: linear-gradient(0deg, #0a1d36 62%, rgba(10,29,54,0));
+}
+.sp-foot-line {
+    color: #7fb6dd;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.sp-foot-sub {
+    color: #5f86a8;
+    font-size: 0.56rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+/* ===================== RESPONSIVE SIDEBAR ===================== */
+@media (max-width: 1100px) {
+    .sp-brand { padding: 16px 14px 10px; }
+    .sp-brand-mark { width: 40px; height: 40px; font-size: 19px; }
+    .sp-brand-title { font-size: 0.9rem; letter-spacing: 0.1em; }
+    [data-testid="stSidebar"] [role="radiogroup"] label { padding: 11px 13px !important; font-size: 0.8rem !important; }
+}
+@media (max-width: 760px) {
+    .sp-brand-copy { display: none; }
+    .sp-brand-mark { width: 44px; height: 44px; }
+    .sp-brand-eyebrow { margin: 0 14px 12px; letter-spacing: 0.14em; }
+    .sp-nav-heading { margin: 0 16px 6px; }
+    [data-testid="stSidebar"] [role="radiogroup"] { padding: 0 6px; }
+    [data-testid="stSidebar"] [role="radiogroup"] label { text-align: center; justify-content: center !important; padding: 11px 8px !important; }
+    .sp-footer { align-items: center; margin: 14px 10px 0; }
+    .sp-foot-line { letter-spacing: 0.1em; }
+}
+
+/* Séparateur discret au-dessus du profil utilisateur */
+[data-testid="stSidebar"] hr {
+    border-color: rgba(86,168,255,0.15) !important;
+    margin: 10px 14px !important;
+}
+
+/* ===================== PRINT ===================== */
+@media print {
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+}

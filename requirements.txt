@@ -1,0 +1,7 @@
+streamlit
+pandas
+pymysql
+python-dotenv
+openpyxl
+xlsxwriter
+reportlab
