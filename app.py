@@ -498,11 +498,14 @@ if status["status"] == "error":
 
         {status["message"]}
 
-        Vérifie XAMPP, MySQL, port 3307 et fichier `.env`.
+        En local : vérifie MySQL (XAMPP), le port et le fichier `.env`.
+        En Docker : `docker compose up --build`.
         Code d'erreur: {status.get("code", "N/A")}
         """
     )
     st.stop()
+
+db_manager.initialize_database()
 
 
 # ===================== PAGE ACCUEIL / GATEWAY =====================

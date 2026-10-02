@@ -103,8 +103,11 @@ class DBManager:
         try:
             return pymysql.connect(**MYSQL_CONFIG)
         except Error as e:
-            st.error(f"❌ Erreur de connexion MySQL: {e}")
             logger.error(f"Erreur connexion MySQL: {e}")
+            try:
+                st.error(f"❌ Erreur de connexion MySQL: {e}")
+            except Exception:
+                pass
             return None
 
     def _table_columns(self, conn, table_name: str) -> set:
@@ -375,15 +378,25 @@ class DBManager:
             # 10. DONNÉES PAR DÉFAUT
             # ========================================
 
-            # Insérer un utilisateur admin par défaut
-            cursor.execute("SELECT COUNT(*) FROM users")
-            if cursor.fetchone()[0] == 0:
-                import hashlib
-                admin_hash = hashlib.sha256("admin123".encode()).hexdigest()
-                cursor.execute("""
+            import hashlib
+
+            def ensure_user(username: str, plain_password: str, role: str) -> None:
+                cursor.execute(
+                    "SELECT id FROM users WHERE username = %s", (username,)
+                )
+                if cursor.fetchone():
+                    return
+                hashed = hashlib.sha256(plain_password.encode()).hexdigest()
+                cursor.execute(
+                    """
                     INSERT INTO users (username, password, password_hash, role)
                     VALUES (%s, %s, %s, %s)
-                """, ("admin", admin_hash, admin_hash, "admin"))
+                    """,
+                    (username, hashed, hashed, role),
+                )
+
+            ensure_user("admin", "admin123", "admin")
+            ensure_user("agent", "agent123", "agent")
 
             # Insérer des postes par défaut (nouvelle liste)
             cursor.execute("SELECT COUNT(*) FROM postes")
